@@ -27,13 +27,13 @@ uint16_t prev_pwm_value;
 
 boolean prev_key1, prev_key2, prev_key3;
 
-char line1[20] = "U=12.0V I=1.5A      Weig=2000g ";
-char line2[20] = "PWM=1000    STOP";
+char line1[20] = "U=12.0V I=1.5A       ";
+char line2[20] = "PWM=1000    STOP     ";
 
 
 
 char stop_line[] = "STOP";
-char weight_line[] = "Weig";
+//char weight_line[] = "Weig";
 
 void setup() 
 {
@@ -61,7 +61,6 @@ void setup()
   while (! Serial);
 
   Serial.println("Dose: check for LCD");
-
   Wire.begin();
   Wire.beginTransmission(0x3F);
   error = Wire.endTransmission();
@@ -78,19 +77,24 @@ void setup()
     Serial.println(": LCD not found.");
   } 
 
-  lcd.begin(16, 2);                    //  инициализировать lcd
-  lcd.setBacklight(155);
+  lcd.begin(20, 2);                    //  инициализировать lcd
+  lcd.setBacklight(255);
   lcd.home();
   lcd.clear();
   lcd.print("Engine");
   lcd.setCursor(0, 1);
   lcd.print("tester");
 
-  //lcd.setCursor(20, 0);   // перевод курсора 
-  //lcd.print("Weig=");         // пишем Ампер 
+  lcd.setCursor(20, 0);   // перевод курсора 
+  lcd.print("Weig=");         // пишем Ампер 
 
-  //lcd.setCursor(30, 0);   // перевод курсора 
-  //lcd.print("Watt=");         // пишем Ампер 
+  lcd.setCursor(30, 0);   // перевод курсора 
+  lcd.print("Watt=");         // пишем Ампер 
+
+  lcd.setCursor(20, 1);   // перевод курсора 
+  lcd.print("Effi=");         // пишем Ампер 
+
+  
   delay(500);
 }
 
@@ -147,8 +151,8 @@ void loop()
   int32_t real_weight = - (hx_curr_reading - hx_zero_value) / 224.5;  // Корректировка весов
   
   float real_wg;
-  if(real_w > 5) {
-  real_wg = (real_w / real_weight) ;      //Эффективность грам на ват
+  if(real_w > 2) {
+  real_wg = (real_weight/real_w) ;      //Эффективность грам на ват
   }
     else  
      {
@@ -172,10 +176,7 @@ void loop()
  
   dtostrf(realI, 4, 1, line1 + 10);       //выводим значение тока
   line1[14] = 'A';
-  
-  dtostrf(real_weight, 4, 0, line1 + 56);
-  line1[31] = 'g';
-  
+    
   for (uint8_t i = 4; i < 16; i++) line2[i] = ' ';
   itoa(pwm_value, line2 + 4, 10);
   for (uint8_t i = 0; i < 16; i++) if (line2[i] == 0) line2[i] = ' ';
@@ -190,32 +191,39 @@ void loop()
     }
     Serial.println("STOP");
   } else {
-    for (uint8_t i = 12; i < 16; i++) line2[i] = ' ';
+    
+    dtostrf(real_weight, 4, 0, line2 + 14) ;
+    line2[20] = 'g';                           // эта буква не показывается в конце 2 строки.
+    
+    // как затирать потом оставшиеся символы от тяги когда отпускаем кнопку? когда выводится STOP.
+    // и как прописать weigh= 
+    
+    
     Serial.println("RUN");
   }
   
   
+  char myStr[6];                                // текстовый массив для текста
+  
+ // dtostrf(real_weight, 4, 0, myStr);                 //Подготовка 5 знакомест
+ // lcd.setCursor(25, 0);                          //Переводим курсор
+  //lcd.print(myStr);                             //выводим значение вольт
+  
+  dtostrf(real_w, 3, 0, myStr);                 //Подготовка 5 знакомест
+  lcd.setCursor(35, 0);                          //Переводим курсор
+  lcd.print(myStr);                             //выводим значение вольт
+
+  dtostrf(real_wg, 4, 0, myStr);                 //Подготовка 5 знакомест
+  lcd.setCursor(25, 1);                          //Переводим курсор
+  lcd.print(myStr);                             //выводим значение вольт
+
+  //dtostrf(RPM, 4, 0, myStr);                 //Подготовка 5 знакомест
+  //lcd.setCursor(24, 1);                          //Переводим курсор
+  //lcd.print(myStr);                             //выводим значение вольт
   
   line1[40] = 0;
   line2[40] = 0;
-  
-  //char myStr[6];                                // текстовый массив для текста
-  
-  //dtostrf(real_weight, 4, 0, line1 + 26);                 //Подготовка 5 знакомест
-  //lcd.setCursor(25, 0);                          //Переводим курсор
-  //lcd.print(myStr);                             //выводим значение вольт
-  
-  //dtostrf(real_w, 3, 0, myStr);                 //Подготовка 5 знакомест
-  //lcd.setCursor(35, 0);                          //Переводим курсор
-  //lcd.print(myStr);                             //выводим значение вольт
-
-  //dtostrf(real_wg, 4, 0, myStr);                 //Подготовка 5 знакомест
-  //lcd.setCursor(25, 1);                          //Переводим курсор
-  //lcd.print(myStr);                             //выводим значение вольт
-  
-
-  
-
+ 
   lcd.setCursor(0, 0);
   lcd.print(line1);
   lcd.setCursor(0, 1);
