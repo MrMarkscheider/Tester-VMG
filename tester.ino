@@ -27,13 +27,13 @@ uint16_t prev_pwm_value;
 
 boolean prev_key1, prev_key2, prev_key3;
 
-char line1[20] = "U=12.0V I=1.5A       ";
-char line2[20] = "PWM=1000    STOP     ";
+char line1[19] = "U=12.0V I=1.5A";
+char line2[19] = "PWM=1000    STOP";
 
 
 
 char stop_line[] = "STOP";
-//char weight_line[] = "Weig";
+char weight_line[] = "Weig";
 
 void setup() 
 {
@@ -77,7 +77,7 @@ void setup()
     Serial.println(": LCD not found.");
   } 
 
-  lcd.begin(20, 2);                    //  инициализировать lcd
+  lcd.begin(20, 4);                    //  инициализировать lcd
   lcd.setBacklight(255);
   lcd.home();
   lcd.clear();
@@ -177,9 +177,9 @@ void loop()
   dtostrf(realI, 4, 1, line1 + 10);       //выводим значение тока
   line1[14] = 'A';
     
-  for (uint8_t i = 4; i < 16; i++) line2[i] = ' ';
+  for (uint8_t i = 4; i < 19; i++) line2[i] = ' ';
   itoa(pwm_value, line2 + 4, 10);
-  for (uint8_t i = 0; i < 16; i++) if (line2[i] == 0) line2[i] = ' ';
+  for (uint8_t i = 0; i < 19; i++) if (line2[i] == 0) line2[i] = ' ';
 
   if (now_key3 == HIGH) 
   {
@@ -193,11 +193,7 @@ void loop()
   } else {
     
     dtostrf(real_weight, 4, 0, line2 + 14) ;
-    line2[20] = 'g';                           // эта буква не показывается в конце 2 строки.
-    
-    // как затирать потом оставшиеся символы от тяги когда отпускаем кнопку? когда выводится STOP.
-    // и как прописать weigh= 
-    
+    line2[18] = 'g';
     
     Serial.println("RUN");
   }
@@ -207,7 +203,7 @@ void loop()
   
  // dtostrf(real_weight, 4, 0, myStr);                 //Подготовка 5 знакомест
  // lcd.setCursor(25, 0);                          //Переводим курсор
-  //lcd.print(myStr);                             //выводим значение вольт
+ // lcd.print(myStr);                             //выводим значение вольт
   
   dtostrf(real_w, 3, 0, myStr);                 //Подготовка 5 знакомест
   lcd.setCursor(35, 0);                          //Переводим курсор
@@ -221,8 +217,8 @@ void loop()
   //lcd.setCursor(24, 1);                          //Переводим курсор
   //lcd.print(myStr);                             //выводим значение вольт
   
-  line1[40] = 0;
-  line2[40] = 0;
+  line1[19] = 0;
+  line2[19] = 0;
  
   lcd.setCursor(0, 0);
   lcd.print(line1);
