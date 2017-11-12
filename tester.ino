@@ -1,7 +1,9 @@
+#include <iarduino_ACS712.h>
+
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <Servo.h>
-
+ 
 #include <Q2HX711.h>
 
 const byte key_down = 4;
@@ -27,16 +29,17 @@ uint16_t prev_pwm_value;
 
 boolean prev_key1, prev_key2, prev_key3;
 
-char line1[19] = "U= 0.0V I=0.5A";
-char line2[19] = "PWM=1000    STOP";
-char line3[19] = "W=   0w Ef= 0.0g/w";
-char line4[19] = "RPM1=  0 RPM2=  0";
+char line1[20] = "U= 0.0V I=0.5A   ";
+char line2[20] = "PWM=1000    STOP";
+char line3[20] = "W=   0w Ef=0.0 g/w";
+char line4[20] = "RPM1=0   RPM2=0 ";
 
 
 char stop_line[] = "STOP";
 char weight_line[] = "Weig=";
 
 void setup() 
+
 {
   int error;
 
@@ -124,10 +127,13 @@ void loop()
 
           //Измерение параметров
        
-  uint16_t inU = analogRead(7);
+  uint16_t inU = analogRead(7); 
   uint16_t inI = analogRead(6);
   float realU = float(inU) * 0.027425;  //Корректировка напряжения
-  float realI = (float(inI)- 512.0)*5.0/1024/0.0133;   //Корректировка тока
+  float real_i = (float(inI)- 512.0)*5.0/1024/0.0133;   //Корректировка тока
+
+float realI = (real_i * 0.9) + (real_i / 10);
+
 
   float real_w = (realU * realI) ;
 
@@ -161,11 +167,13 @@ void loop()
   Serial.print(" T=");
   Serial.print(real_weight);
   Serial.print("g ");
-
+  
+  //char line1[19] = "U= 0.0V I=0.5A";
+   
   dtostrf(realU, 4, 1, line1 + 2);        //собираем значение напряжения
   line1[6] = 'V';
- 
-  dtostrf(realI, 4, 1, line1 + 10);       //собираем значение тока  ток и напряжение не выводятся. стоит на engine/ что делать не знаю
+   
+  dtostrf(realI, 4, 1, line1 + 10);       //собираем значение тока
   line1[14] = 'A';
     
   for (uint8_t i = 4; i < 19; i++) line2[i] = ' ';
@@ -182,38 +190,30 @@ void loop()
     }
     Serial.println("STOP");
   } else{ 
-    uint8_t i = 0;
-    while (weight_line[i] != 0) {
-    line2[i + 9] = weight_line[i];
-    i++;
+        uint8_t i = 0;
+        while (weight_line[i] != 0) {
+            line2[i + 9] = weight_line[i];
+            i++;
+        }
     dtostrf(real_weight, 4, 0, line2 + 14) ;
     line2[18] = 'g';
-    }
-    
     Serial.println("RUN");
   }
     
-  if (now_key3 == LOW) {
-    uint8_t i = 0;
-    while (stop_line[i] != 0) {
-      line3[i+2] = real_w;
-     
       dtostrf(real_w, 4, 0, line3 + 2);    //собираю  строчку3 добавляю мощность
       line3[6] = 'w';                     
-      dtostrf(real_wg, 3, 1, line3 + 11);  //добавляю эффективность в строчку 3
+      dtostrf(real_wg, 4, 1, line3 + 11);  //добавляю эффективность в строчку 3
       line3[15] = 'g'; 
       line3[16] = '/'; 
       line3[17] = 'w'; 
       dtostrf(real_wg, 3, 0, line4 + 5);   //собираю строчку 4 здесь будет скорост вращ верхнего мотора
       line4[8] = ' ';
       dtostrf(real_wg, 3, 0, line4 + 14);  //а тут нижнего мотора.
-      i++;
-    }
-  }
-  
-   
+     
   line1[19] = 0;
   line2[19] = 0;
+  line3[19] = 0;
+  line4[19] = 0;
   
  
   lcd.setCursor(0, 0);
