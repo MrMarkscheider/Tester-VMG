@@ -42,7 +42,7 @@ rpm_cntr2++;
 void loop() {
   
 /*
-float realRPM1 = (rpm_cntr1 < 2) ? 0.0 : float(rpm_cntr1 - 1) * 60000000.0 / float(stop_t1 - start_t1);
+float realRPM1 = (rpm_cntr1 < 2) ? 0.0 : (float)(rpm_cntr1 - 1) * 60000000.0 / (float)(stop_t1 - start_t1);
 rpm_cntr1 = 0;
 float realRPM2 = (rpm_cntr2 < 2) ? 0.0 : float(rpm_cntr2 - 1) * 60000000.0 / float(stop_t2 - start_t2);
 rpm_cntr2 = 0;
@@ -50,40 +50,49 @@ rpm_cntr2 = 0;
 
 
 float realRPM1 = 0.0;
-if (rpm_cntr1 > 4)
+if (rpm_cntr1 > 0)
 {
 realRPM1 = (float) (rpm_cntr1 - 1) * 60000000.0f / (float)(stop_t1 - start_t1);
+
+Serial.print("cntr=");
+ Serial.flush();
+Serial.println(rpm_cntr1);
+ 
+Serial.print("start=");
+ Serial.flush();
+Serial.println(start_t1);
+
+Serial.print("stop=");
+ Serial.flush();
+Serial.println(stop_t1);
+
 rpm_cntr1 = 0;
-
-
-serial.print("cntr=");
-serial.println(rpm_cntr1);
-serial.print("start=");
-serial.println(start_t1);
-serial.print("stop=");
-serial.println(stop_t1);
-
 }
 
-float prSpr1=realRPM1/7;
-
-
-dtostrf(prSpr1, 8, 0, line1 + 3);   //собираю строчку 4 здесь будет скорост вращ верхнего мотора
-//line2[7] = ' ';
-dtostrf(rpm_cntr1, 4, 0 , line2 + 3);   //а тут нижнего мотора.
-
+//float prSpr1=realRPM1/7 ;                  //Делим на 7 лопастей
+       
 /*
+dtostrf(realRPM1, 8, 0, line1 + 3);          //собираю строчку 4 здесь будет скорост вращ верхнего мотора
+//line2[7] = ' ';
+*/
+dtostrf(rpm_cntr1, 6, 0 , line2 + 3);    //а тут нижнего мотора.
+
+
 if (realRPM1 > 5)
 {
-dtostrf(realRPM1, 3, 0, line2 + 3); //собираю строчку 4 здесь будет скорост вращ верхнего мотора
-line2[6] = ' '; 
+dtostrf(realRPM1, 6, 0, line1 + 3); //собираю строчку 4 здесь будет скорост вращ верхнего мотора
+line2[11] = ' '; 
 }
+/*
 if(realRPM2 > 5)
 {
 dtostrf(realRPM2, 3, 0, line2 + 8); //а тут нижнего мотора.
 line2[11] = ' '; 
 }
  */
+
+Serial.print("RPM=");
+Serial.println(realRPM1);
 
 line1[16] = 0;
 line2[16] = 0;
@@ -94,5 +103,4 @@ lcd.setCursor(0, 1);
 lcd.print(line2);
 
 }
-
 
