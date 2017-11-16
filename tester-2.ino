@@ -6,9 +6,9 @@
 volatile unsigned long start_t1, stop_t1, start_t2, stop_t2;
 volatile uint16_t rpm_cntr1, rpm_cntr2;
 
-const byte key_down = 4;
-const byte key_up = 3;
-const byte key_stop = 2;
+const byte key_down = 6;
+const byte key_up = 5;
+const byte key_stop = 4;
 
 const byte hx_data_pin = A1;
 const byte hx_clock_pin = A0;
@@ -35,15 +35,15 @@ boolean prev_key1, prev_key2, prev_key3;
 char line1[21] = "U= 0.0V I=0.5A   ";
 char line2[21] = "PWM=1000    STOP";
 char line3[21] = "W=   0w Ef=0.0 g/w";
-char line4[21] = "R=1,256 R=1,256";
+char line4[21] = "R=1.256 R=1.256";
 
 char stop_line[] = "STOP";
 char weight_line[] = "Weig=";
 
 void setup() {
 
-  attachInterrupt(digitalPinToInterrupt(5), interrupt1, RISING);  // пин датчика верхнего двигателя
-  attachInterrupt(digitalPinToInterrupt(6), interrupt2, RISING);  // пин датчика нижнего двигателя
+  attachInterrupt(digitalPinToInterrupt(2), interrupt1, RISING);  // пин датчика верхнего двигателя
+  attachInterrupt(digitalPinToInterrupt(3), interrupt2, RISING);  // пин датчика нижнего двигателя
 
   rpm_cntr1 = 0;
   rpm_cntr2 = 0;
@@ -146,7 +146,7 @@ void loop() {
             //Измерение оборотов
 
 float realRPM1 = 0.0;
-if (rpm_cntr1 > 4){
+if (rpm_cntr1 > 2){
 noInterrupts();
 unsigned long tmp_start1 = start_t1;
 unsigned long tmp_stop1 = stop_t1;
@@ -157,7 +157,7 @@ realRPM1 = (float) (tmp_cntr1 - 1) * 60000000.0f / (float)(tmp_stop1 - tmp_start
 }
 
 float realRPM2 = 0.0;
-if (rpm_cntr2 > 4){
+if (rpm_cntr2 > 2){
 noInterrupts();
 unsigned long tmp_start2 = start_t2;
 unsigned long tmp_stop2 = stop_t2;
@@ -168,8 +168,8 @@ realRPM2 = (float) (tmp_cntr2 - 1) * 60000000.0f / (float)(tmp_stop2 - tmp_start
 }
 
  
-float prSpr1=realRPM1/7/1000 ;                  //Делим на 7 лопастей первый мотор 
-float prSpr2=realRPM2/7/1000 ;                  //Делим на 7 лопастей второй мотор
+float prSpr1=realRPM1/7 ;                  //Делим на 7 лопастей первый мотор 
+float prSpr2=realRPM2/7 ;                  //Делим на 7 лопастей второй мотор
 
 
           //Измерение параметров
@@ -252,15 +252,12 @@ float prSpr2=realRPM2/7/1000 ;                  //Делим на 7 лопаст
       line3[16] = '/'; 
       line3[17] = 'w'; 
       
-      if (realRPM1 > 5){
-        dtostrf(prSpr1, 5, 3, line4 + 2); //собираю строчку 4 здесь будет скорост вращ верхнего мотора
-        line4[7] = ' '; 
-        }
-
-      if (realRPM2 > 5){
-        dtostrf(prSpr2, 5, 3, line4 + 8); //char line4[21] = "R=1,256 R=1,256";
-        line4[11] = ' '; 
-        }
+      dtostrf(prSpr1, 5, 0, line4 + 2); //собираю строчку 4 здесь будет скорост вращ верхнего мотора
+      line4[7] = ' '; 
+           
+      dtostrf(prSpr2, 5, 0, line4 + 10); //char line4[21] = "R=1,256 R=1,256";
+      //line4[11] = ' '; 
+       
 
   line1[20] = 0;
   line2[20] = 0;
