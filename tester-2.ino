@@ -1,3 +1,8 @@
+/* Скеч для стенда подбора ВМГ. 
+Добавлены показания оборотов на 2 мотора.
+*/
+
+
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <Servo.h>
@@ -140,9 +145,6 @@ void loop() {
     Engine.writeMicroseconds(tmp_pwm_value);
     prev_pwm_value = tmp_pwm_value;
   }
-
-
-
             //Измерение оборотов
 
 float realRPM1 = 0.0;
