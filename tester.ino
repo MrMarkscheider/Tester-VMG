@@ -36,8 +36,8 @@ boolean prev_key1, prev_key2, prev_key3;
 
 char line1[20] = "U= 0.0V I=0.5A   ";
 char line2[20] = "PWM=1000    STOP";
-char line3[20] = "W=   0w Ef=0.0 g/w";
-char line4[20] = "RPM1=0   RPM2=0 ";
+char line3[21] = "W=   0w Ef=0.0 g/w";    //для отображения этой строчки нуже четырех строчный экран. 20х4
+char line4[21] = "R=1.256 R=1.256";       //в планах сделать измеритель оборотов. пока не работает.
 
 
 char stop_line[] = "STOP";
